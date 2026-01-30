@@ -637,6 +637,14 @@ a:hover {
   font-weight: 600;
   font-size: var(--font-size-sm);
   margin-top: var(--spacing-sm);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+a.certification-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  filter: brightness(1.1);
 }
 
 /* ===== FOOTER ===== */
