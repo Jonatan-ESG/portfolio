@@ -114,11 +114,16 @@
 }
 
 /* Toggles Styles */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
 .nav-controls {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  margin-left: var(--spacing-lg);
 }
 
 .control-btn {
