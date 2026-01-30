@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-container {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .instruction-text {
+            font-size: 1.2rem;
+            color: #b4b4c8;
+            margin-bottom: 3rem;
+            letter-spacing: 1px;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 0.5s;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .keys-container {
+            display: flex;
+            gap: 3rem;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .key {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            box-shadow: 
+                0 8px 16px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -4px 0 rgba(0, 0, 0, 0.4);
+            position: relative;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            user-select: none;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .key.j {
+            animation: slideUp 0.6s ease forwards 0.8s;
+        }
+
+        .key.s {
+            animation: slideUp 0.6s ease forwards 1s;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .key::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            padding: 2px;
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0), rgba(139, 92, 246, 0));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            transition: background 0.3s ease;
+        }
+
+        .key.active {
+            transform: translateY(4px);
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .key.active::before {
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0.8), rgba(59, 130, 246, 0.8));
+        }
+
+        .key.both-active {
+            animation: pulse 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1) translateY(4px);
+            }
+            50% {
+                transform: scale(1.05) translateY(4px);
+            }
+        }
+
+        /* Particle effects */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .key.both-active .particle {
+            animation: particleExplode 0.8s ease-out forwards;
+        }
+
+        @keyframes particleExplode {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0);
+            }
+        }
+
+        /* Circuit board overlay */
+        .circuit-overlay {
+            position: fixed;
+            inset: 0;
+            background: #0a0a0f;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .circuit-overlay.active {
+            animation: circuitFadeIn 0.3s ease forwards;
+        }
+
+        @keyframes circuitFadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* SVG Circuit Board */
+        .circuit-svg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Circuit trace lines */
+        .circuit-trace {
+            fill: none;
+            stroke: #8b5cf6;
+            stroke-width: 3;
+            stroke-linecap: round;
+            opacity: 0.9;
+        }
+
+        .circuit-trace-thin {
+            stroke-width: 1.5;
+            stroke: #3b82f6;
+            opacity: 0.7;
+        }
+
+        /* Animate circuit traces drawing */
+        .circuit-overlay.active .circuit-trace {
+            animation: drawTrace 1s ease-out forwards;
+        }
+
+        @keyframes drawTrace {
+            from {
+                stroke-dashoffset: 1000;
+            }
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* Circuit pads/nodes */
+        .circuit-pad {
+            fill: #06b6d4;
+        }
+
+        .circuit-overlay.active .circuit-pad {
+            animation: padFadeIn 1s ease-out forwards;
+        }
+
+        @keyframes padFadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Central energy burst */
+        .energy-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, 
+                rgba(139, 92, 246, 0.4) 0%, 
+                rgba(59, 130, 246, 0.2) 30%, 
+                transparent 70%);
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+
+        .circuit-overlay.active .energy-core {
+            animation: coreExpand 1s ease-out forwards;
+        }
+
+        @keyframes coreExpand {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            20% {
+                opacity: 1;
+            }
+            60% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(2);
+            }
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 1.2s;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #2a2a2a;
+            transition: all 0.3s ease;
+        }
+
+        .status-dot.active {
+            background: #8b5cf6;
+            box-shadow: 0 0 20px #8b5cf6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .instruction-text {
+                font-size: 1rem;
+                padding: 0 1rem;
+            }
+
+            .keys-container {
+                gap: 2rem;
+            }
+
+            .key {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <p class="instruction-text">Presiona las siguientes teclas</p>
+        
+        <div class="keys-container">
+            <div class="key j" data-key="j">
+                J
+                <!-- Particles -->
+                <div class="particle" style="--tx: -40px; --ty: -40px;"></div>
+                <div class="particle" style="--tx: 40px; --ty: -40px;"></div>
+                <div class="particle" style="--tx: -40px; --ty: 40px;"></div>
+                <div class="particle" style="--tx: 40px; --ty: 40px;"></div>
+                <div class="particle" style="--tx: -60px; --ty: 0;"></div>
+                <div class="particle" style="--tx: 60px; --ty: 0;"></div>
+                <div class="particle" style="--tx: 0; --ty: -60px;"></div>
+                <div class="particle" style="--tx: 0; --ty: 60px;"></div>
+            </div>
+            
+            <div class="key s" data-key="s">
+                S
+                <!-- Particles -->
+                <div class="particle" style="--tx: -40px; --ty: -40px;"></div>
+                <div class="particle" style="--tx: 40px; --ty: -40px;"></div>
+                <div class="particle" style="--tx: -40px; --ty: 40px;"></div>
+                <div class="particle" style="--tx: 40px; --ty: 40px;"></div>
+                <div class="particle" style="--tx: -60px; --ty: 0;"></div>
+                <div class="particle" style="--tx: 60px; --ty: 0;"></div>
+                <div class="particle" style="--tx: 0; --ty: -60px;"></div>
+                <div class="particle" style="--tx: 0; --ty: 60px;"></div>
+            </div>
+        </div>
+
+        <div class="status-indicator">
+            <div class="status-dot" data-status="j"></div>
+            <div class="status-dot" data-status="s"></div>
+        </div>
+    </div>
+
+    <div class="circuit-overlay" id="circuitOverlay">
+        <!-- Central energy burst -->
+        <div class="energy-core"></div>
+        
+        <!-- SVG Circuit Board -->
+        <svg class="circuit-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+            <!-- Main horizontal traces from center -->
+            <line class="circuit-trace" x1="960" y1="540" x2="0" y2="540" stroke-dasharray="1000" style="animation-delay: 0s;"/>
+            <line class="circuit-trace" x1="960" y1="540" x2="1920" y2="540" stroke-dasharray="1000" style="animation-delay: 0s;"/>
+            
+            <!-- Main vertical traces from center -->
+            <line class="circuit-trace" x1="960" y1="540" x2="960" y2="0" stroke-dasharray="1000" style="animation-delay: 0.05s;"/>
+            <line class="circuit-trace" x1="960" y1="540" x2="960" y2="1080" stroke-dasharray="1000" style="animation-delay: 0.05s;"/>
+            
+            <!-- L-shaped traces (top-left quadrant) -->
+            <path class="circuit-trace" d="M 960 540 L 960 300 L 0 300" stroke-dasharray="1000" style="animation-delay: 0.1s;"/>
+            <path class="circuit-trace" d="M 960 540 L 700 540 L 700 0" stroke-dasharray="900" style="animation-delay: 0.15s;"/>
+            <path class="circuit-trace" d="M 960 300 L 500 300 L 500 0" stroke-dasharray="900" style="animation-delay: 0.2s;"/>
+            <path class="circuit-trace" d="M 0 300 L 600 300 L 600 450 L 0 450" stroke-dasharray="900" style="animation-delay: 0.25s;"/>
+            
+            <!-- L-shaped traces (top-right quadrant) -->
+            <path class="circuit-trace" d="M 960 540 L 960 300 L 1920 300" stroke-dasharray="1000" style="animation-delay: 0.1s;"/>
+            <path class="circuit-trace" d="M 960 540 L 1220 540 L 1220 0" stroke-dasharray="900" style="animation-delay: 0.15s;"/>
+            <path class="circuit-trace" d="M 960 300 L 1420 300 L 1420 0" stroke-dasharray="900" style="animation-delay: 0.2s;"/>
+            <path class="circuit-trace" d="M 1920 300 L 1320 300 L 1320 450 L 1920 450" stroke-dasharray="900" style="animation-delay: 0.25s;"/>
+            
+            <!-- L-shaped traces (bottom-left quadrant) -->
+            <path class="circuit-trace" d="M 960 540 L 960 780 L 0 780" stroke-dasharray="1000" style="animation-delay: 0.12s;"/>
+            <path class="circuit-trace" d="M 960 540 L 700 540 L 700 1080" stroke-dasharray="900" style="animation-delay: 0.17s;"/>
+            <path class="circuit-trace" d="M 960 780 L 500 780 L 500 1080" stroke-dasharray="900" style="animation-delay: 0.22s;"/>
+            <path class="circuit-trace" d="M 0 780 L 600 780 L 600 630 L 0 630" stroke-dasharray="900" style="animation-delay: 0.27s;"/>
+            
+            <!-- L-shaped traces (bottom-right quadrant) -->
+            <path class="circuit-trace" d="M 960 540 L 960 780 L 1920 780" stroke-dasharray="1000" style="animation-delay: 0.12s;"/>
+            <path class="circuit-trace" d="M 960 540 L 1220 540 L 1220 1080" stroke-dasharray="900" style="animation-delay: 0.17s;"/>
+            <path class="circuit-trace" d="M 960 780 L 1420 780 L 1420 1080" stroke-dasharray="900" style="animation-delay: 0.22s;"/>
+            <path class="circuit-trace" d="M 1920 780 L 1320 780 L 1320 630 L 1920 630" stroke-dasharray="900" style="animation-delay: 0.27s;"/>
+            
+            <!-- Secondary rectangular paths -->
+            <path class="circuit-trace-thin" d="M 700 300 L 700 400 L 500 400 L 500 0" stroke-dasharray="700" style="animation-delay: 0.3s;"/>
+            <path class="circuit-trace-thin" d="M 1220 300 L 1220 400 L 1420 400 L 1420 0" stroke-dasharray="700" style="animation-delay: 0.3s;"/>
+            <path class="circuit-trace-thin" d="M 700 780 L 700 680 L 500 680 L 500 1080" stroke-dasharray="700" style="animation-delay: 0.32s;"/>
+            <path class="circuit-trace-thin" d="M 1220 780 L 1220 680 L 1420 680 L 1420 1080" stroke-dasharray="700" style="animation-delay: 0.32s;"/>
+            
+            <!-- Small connecting traces -->
+            <path class="circuit-trace-thin" d="M 600 450 L 800 450 L 800 540" stroke-dasharray="500" style="animation-delay: 0.35s;"/>
+            <path class="circuit-trace-thin" d="M 1320 450 L 1120 450 L 1120 540" stroke-dasharray="500" style="animation-delay: 0.35s;"/>
+            <path class="circuit-trace-thin" d="M 600 630 L 800 630 L 800 540" stroke-dasharray="500" style="animation-delay: 0.37s;"/>
+            <path class="circuit-trace-thin" d="M 1320 630 L 1120 630 L 1120 540" stroke-dasharray="500" style="animation-delay: 0.37s;"/>
+            
+            <!-- Circuit pads at key intersections -->
+            <circle class="circuit-pad" cx="960" cy="540" r="8"/>
+            <circle class="circuit-pad" cx="960" cy="300" r="6" style="animation-delay: 0.3s;"/>
+            <circle class="circuit-pad" cx="960" cy="780" r="6" style="animation-delay: 0.3s;"/>
+            <circle class="circuit-pad" cx="700" cy="540" r="6" style="animation-delay: 0.3s;"/>
+            <circle class="circuit-pad" cx="1220" cy="540" r="6" style="animation-delay: 0.3s;"/>
+            <circle class="circuit-pad" cx="600" cy="300" r="5" style="animation-delay: 0.35s;"/>
+            <circle class="circuit-pad" cx="1320" cy="300" r="5" style="animation-delay: 0.35s;"/>
+            <circle class="circuit-pad" cx="600" cy="780" r="5" style="animation-delay: 0.35s;"/>
+            <circle class="circuit-pad" cx="1320" cy="780" r="5" style="animation-delay: 0.35s;"/>
+            <circle class="circuit-pad" cx="700" cy="300" r="4" style="animation-delay: 0.4s;"/>
+            <circle class="circuit-pad" cx="1220" cy="300" r="4" style="animation-delay: 0.4s;"/>
+            <circle class="circuit-pad" cx="700" cy="780" r="4" style="animation-delay: 0.4s;"/>
+            <circle class="circuit-pad" cx="1220" cy="780" r="4" style="animation-delay: 0.4s;"/>
+            <circle class="circuit-pad" cx="600" cy="450" r="4" style="animation-delay: 0.42s;"/>
+            <circle class="circuit-pad" cx="1320" cy="450" r="4" style="animation-delay: 0.42s;"/>
+            <circle class="circuit-pad" cx="600" cy="630" r="4" style="animation-delay: 0.42s;"/>
+            <circle class="circuit-pad" cx="1320" cy="630" r="4" style="animation-delay: 0.42s;"/>
+            <circle class="circuit-pad" cx="800" cy="540" r="4" style="animation-delay: 0.45s;"/>
+            <circle class="circuit-pad" cx="1120" cy="540" r="4" style="animation-delay: 0.45s;"/>
+        </svg>
+    </div>
+
+    <script>
+        // Check if device is mobile and redirect immediately
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                || window.innerWidth <= 768;
+        }
+
+        // If mobile, skip loading screen
+        if (isMobileDevice()) {
+            window.location.href = 'portfolio.html';
+        }
+
+        const keyJ = document.querySelector('.key.j');
+        const keyS = document.querySelector('.key.s');
+        const statusDots = {
+            j: document.querySelector('[data-status="j"]'),
+            s: document.querySelector('[data-status="s"]')
+        };
+        const circuitOverlay = document.getElementById('circuitOverlay');
+
+        let keysPressed = {
+            j: false,
+            s: false
+        };
+
+        let hasTriggered = false;
+
+        // Keyboard event listeners
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            
+            if (key === 'j' && !keysPressed.j) {
+                keysPressed.j = true;
+                keyJ.classList.add('active');
+                statusDots.j.classList.add('active');
+                checkBothKeys();
+            }
+            
+            if (key === 's' && !keysPressed.s) {
+                keysPressed.s = true;
+                keyS.classList.add('active');
+                statusDots.s.classList.add('active');
+                checkBothKeys();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            
+            if (key === 'j') {
+                keysPressed.j = false;
+                keyJ.classList.remove('active');
+                keyJ.classList.remove('both-active');
+                statusDots.j.classList.remove('active');
+            }
+            
+            if (key === 's') {
+                keysPressed.s = false;
+                keyS.classList.remove('active');
+                keyS.classList.remove('both-active');
+                statusDots.s.classList.remove('active');
+            }
+        });
+
+        // Check if both keys are pressed
+        function checkBothKeys() {
+            if (keysPressed.j && keysPressed.s && !hasTriggered) {
+                hasTriggered = true;
+                keyJ.classList.add('both-active');
+                keyS.classList.add('both-active');
+                
+                // Trigger circuit animation
+                setTimeout(() => {
+                    circuitOverlay.classList.add('active');
+                }, 300);
+                
+                // Redirect to main page
+                setTimeout(() => {
+                    window.location.href = 'portfolio.html';
+                }, 1800);
+            }
+        }
+
+        // Optional: Click handlers for mobile/touch devices
+        keyJ.addEventListener('click', () => {
+            if (!keysPressed.j) {
+                keysPressed.j = true;
+                keyJ.classList.add('active');
+                statusDots.j.classList.add('active');
+                checkBothKeys();
+                
+                setTimeout(() => {
+                    keysPressed.j = false;
+                    keyJ.classList.remove('active');
+                    keyJ.classList.remove('both-active');
+                    statusDots.j.classList.remove('active');
+                }, 2000);
+            }
+        });
+
+        keyS.addEventListener('click', () => {
+            if (!keysPressed.s) {
+                keysPressed.s = true;
+                keyS.classList.add('active');
+                statusDots.s.classList.add('active');
+                checkBothKeys();
+                
+                setTimeout(() => {
+                    keysPressed.s = false;
+                    keyS.classList.remove('active');
+                    keyS.classList.remove('both-active');
+                    statusDots.s.classList.remove('active');
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>
